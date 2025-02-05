@@ -2,53 +2,51 @@ package com.fakebar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Hello world!
+ * https://docs.oracle.com/javase/tutorial/networking/sockets/clientServer.html
  *
  */
 public class App {
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(8080);
+            ServerSocket serverSocket = new ServerSocket(8080); // Creates a new socket that listens on the given port.
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                handleClient(clientSocket);
+                Socket clientSocket = serverSocket.accept(); // ServerSocket.accept() returns a new client socket that
+                                                             // will be connected to the server.
+                clientSocket.getInputStream(); //
+                PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+                String inputLine, outputLine;
+
+                while ((inputLine = reader.readLine()) != null) {
+                    inputLine = processInput(inputLine);
+                }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void handleClient(Socket clientSocket) {
-        try {
-            InputStream input = clientSocket.getInputStream();
-            OutputStream output = clientSocket.getOutputStream();
+    public static String processInput(String inputLine) {
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String line;
-            while ((line = reader.readLine()) != null && !line.isEmpty()) {
-                System.out.println(line);
-            }
+        String processedInput = inputLine;
 
-            String htmlResponse = "<html><body><h1>Hello</h1></body></html>";
-            String httpResponse = "HTTP/1.1 200 OK\r\n" +
-                    "Content-Type: text/html\r\n" +
-                    "Content-Length: " + htmlResponse.getBytes().length + "\r\n" +
-                    "\r\n" +
-                    htmlResponse;
+        if (inputLine.contains("HTTP")) {
 
-            output.write(httpResponse.getBytes("UTF-8"));
-            output.flush();
+        } else if (inputLine.contains("Host")) {
 
-            clientSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else if (inputLine.contains("{")) {
+
+        } else {
+            processedInput = "";
         }
+        return processedInput;
     }
 }
