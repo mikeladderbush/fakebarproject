@@ -22,31 +22,32 @@ public class App {
                 PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                String inputLine, outputLine;
+                String firstLine = reader.readLine();
+                String requestType = firstLine.split(" ")[0]; // Break down first line.
+                String requestFile = firstLine.split(" ")[1];
+                String httpVersion = firstLine.split(" ")[2];
 
-                while ((inputLine = reader.readLine()) != null) {
-                    inputLine = processInput(inputLine);
-                }
+                String secondLine = reader.readLine();
+                String hostName = secondLine.split(" ")[1];
+
+                String thirdLine = reader.readLine();
+                String userAgent = thirdLine.split(" ")[1];
+
+                String fourthLine = reader.readLine();
+                String accept = fourthLine.split(" ")[1];
+
+                String fifthLine = reader.readLine();
+                String contentType = fifthLine.split(" ")[1];
+
+                String sixthLine = reader.readLine();
+                String contentLength = sixthLine.split(" ")[1];
+
+                output.println("Response placeholder");
+
+                clientSocket.close();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static String processInput(String inputLine) {
-
-        String processedInput = inputLine;
-
-        if (inputLine.contains("HTTP")) {
-
-        } else if (inputLine.contains("Host")) {
-
-        } else if (inputLine.contains("{")) {
-
-        } else {
-            processedInput = "";
-        }
-        return processedInput;
     }
 }
