@@ -39,7 +39,7 @@ public class App {
 
                 while ((line = reader.readLine()) != null && !line.isEmpty()) {
 
-                    String[] parts = line.split(":", 2);
+                    String[] parts = line.split(":", 2); // Splitting each line of the request into two parts and placing in a map.
                     if (parts.length == 2) {
                         String headerName = parts[0].trim().toLowerCase();
                         String headerValue = parts[1].trim();
@@ -47,18 +47,18 @@ public class App {
                     }
                 }
 
-                String responseBody = "<html><head><title>My Server</title></head><body><h1>Hello from my raw socket server!</h1></body></html>";
-                byte[] responseBodyBytes = responseBody.getBytes("UTF-8");
+                String responseBody = "<html><head><title>My Server</title></head><body><h1>Hello from my raw socket server!</h1></body></html>"; // Simple placeholder response HTML
+                byte[] responseBodyBytes = responseBody.getBytes("UTF-8"); // Response body as bytes in order to send back to client.
                 int contentLengthBytes = responseBodyBytes.length;
 
-                writer.write("HTTP/1.1 200 OK\r\n");
+                writer.write("HTTP/1.1 200 OK\r\n"); // Using the writer to send the response.
                 writer.write("Content-Type: text/html; charset=UTF-8\r\n");
                 writer.write("Content-Length: " + contentLengthBytes + "\r\n");
                 writer.write("\r\n");
                 writer.write(responseBody);
                 writer.flush();
 
-                clientSocket.close();
+                clientSocket.close(); // closing client socket.
             }
         } catch (IOException e) {
             e.printStackTrace();
