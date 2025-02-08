@@ -1,11 +1,13 @@
 package com.fakebar;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 /**
  * https://docs.oracle.com/javase/tutorial/networking/sockets/clientServer.html
@@ -19,30 +21,42 @@ public class App {
                 Socket clientSocket = serverSocket.accept(); // ServerSocket.accept() returns a new client socket that
                                                              // will be connected to the server.
                 clientSocket.getInputStream(); //
-                PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
                 String firstLine = reader.readLine();
-                String requestType = firstLine.split(" ")[0]; // Break down first line.
-                String requestFile = firstLine.split(" ")[1];
-                String httpVersion = firstLine.split(" ")[2];
+                if (firstLine == null || firstLine.isEmpty()) {
+                    clientSocket.close();
+                    continue;
+                }
+                String[] requestParts = firstLine.split(" ");
+                String requestType = requestParts[0]; // Break down first line.
+                String requestFile = requestParts[1];
+                String httpVersion = requestParts[2];
 
-                String secondLine = reader.readLine();
-                String hostName = secondLine.split(" ")[1];
+                HashMap<String, String> headers = new HashMap<>();
+                String line;
 
-                String thirdLine = reader.readLine();
-                String userAgent = thirdLine.split(" ")[1];
+                while ((line = reader.readLine()) != null && !line.isEmpty()) {
 
-                String fourthLine = reader.readLine();
-                String accept = fourthLine.split(" ")[1];
+                    String[] parts = line.split(":", 2);
+                    if (parts.length == 2) {
+                        String headerName = parts[0].trim().toLowerCase();
+                        String headerValue = parts[1].trim();
+                        headers.put(headerName, headerValue);
+                    }
+                }
 
-                String fifthLine = reader.readLine();
-                String contentType = fifthLine.split(" ")[1];
+                String responseBody = "<html><head><title>My Server</title></head><body><h1>Hello from my raw socket server!</h1></body></html>";
+                byte[] responseBodyBytes = responseBody.getBytes("UTF-8");
+                int contentLengthBytes = responseBodyBytes.length;
 
-                String sixthLine = reader.readLine();
-                String contentLength = sixthLine.split(" ")[1];
-
-                output.println("Response placeholder");
+                writer.write("HTTP/1.1 200 OK\r\n");
+                writer.write("Content-Type: text/html; charset=UTF-8\r\n");
+                writer.write("Content-Length: " + contentLengthBytes + "\r\n");
+                writer.write("\r\n");
+                writer.write(responseBody);
+                writer.flush();
 
                 clientSocket.close();
             }
